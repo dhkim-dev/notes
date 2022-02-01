@@ -1,0 +1,15 @@
+'''
+[
+  :ok?, 
+  :error?, 
+  :ok_value, 
+  :error_value, 
+  :ok_value_or,
+  :ok_value_or_else,   
+  :map,  
+  :and_then, 
+  :each_error, 
+  :or_else, 
+  :map_error, 
+  :each]
+'''

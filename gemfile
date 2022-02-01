@@ -1,4 +1,17 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
+
+SHOPIFY_CLOUDSMITH = 'https://pkgs.shopify.io/basic/gems/ruby'
+
+git_source :github do |name|
+  "https://github.com/#{name}.git"
+end
 
 gem 'sorbet', :group => :development
 gem 'sorbet-runtime'
+gem 'pry-byebug'
+
+source SHOPIFY_CLOUDSMITH do
+  gem "shopify-adt", "~> 1.0.10"
+end
