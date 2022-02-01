@@ -3,7 +3,7 @@ require "byebug"
 require "shopify/adt"
 require "sorbet-runtime"
 extend T::Sig
-
+byebug
 '''
 Only methods with the word value in them, such as 
 
@@ -75,6 +75,69 @@ end
 # "good"
 
 
+'''
+Methods below will not unwrap the result object
+'''
+
+'''
+map
+
+An ok type result with an updated value if called on Ok, otherwise the original Error.
+An ok result with an updated value if called on Ok, otherwise the original Error.
+'''
+res = Shopify::Adt::Result.ok("Good")
+res.map { |price| "#{price} $" } # Shopify::Adt::Result.ok("Good $")
+
+res = Shopify::Adt::Result.error("Bad")
+res.map { |price| "#{price} $" } # Shopify::Adt::Result.error("Bad")
+
+'''
+or_else
+
+Returns self if Ok, or the return value of the block.
+The return value of the block must be a wrapper object.
+
+The value may be of a different Result type
+'''
+
+res = Shopify::Adt::Result.error("bad")
+res_ = res.or_else do |errors|
+  # block gets called
+  p "#{errors}!!!!!"
+  Shopify::Adt::Result.ok("good") # return val
+end
+
+res = Shopify::Adt::Result.ok("good")
+res_ = res.or_else do |errors|
+  # block doesn't get called
+  p "#{errors}!!!!!"
+  Shopify::Adt::Result.ok("I think this will be good")
+end
+# Shopify::Adt::Result.ok("good")
+
+'''
+and_then
+
+Returns value of the block if ok, else self
+The return value of the block must be a wrapper object.
+
+The value may be of a different Result type
+'''
+
+res = Shopify::Adt::Result.ok("good")
+res_ = res.and_then do |val|
+  p "#{val}"
+  Shopify::Adt::Result.ok("val") # return val
+end
+
+
+res = Shopify::Adt::Result.ok("bad")
+res_ = res.and_then do |val|
+  # block doesn't get called
+  p "#{val}"
+  Shopify::Adt::Result.ok("val") # return val
+end
+# Shopify::Adt::Result.ok("bad")
 
 # The caller is expected to handle both the successful and error cases. This can be done by
 # first calling {#ok?} or {#error?}, then use {#ok_value} or {#error_value} in the appropriate
@@ -91,26 +154,3 @@ end
 #
 # Alternatively, {#or_else} and {#and_then} methods are provided to chain operations that return
 # a result object.
-
-byebug
-
-res = Shopify::Adt::Result.ok("Good")
-res.and_then do |price| 
-  Shopify::Adt::Result.ok("#{price} $")
-end
-
-res = Shopify::Adt::Result.error("Bad")
-res.and_then do |price| 
-  Shopify::Adt::Result.ok("#{price} X") # no effect...
-end
-
-'''
-map
-
-An ok type result with an updated value if called on Ok, otherwise the original Error.
-'''
-res = Shopify::Adt::Result.ok("Good")
-res.map { |price| "#{price} $" } # Shopify::Adt::Result.ok("Good $")
-
-res = Shopify::Adt::Result.error("Bad")
-res.map { |price| "#{price} $" } # Shopify::Adt::Result.error("Bad")
